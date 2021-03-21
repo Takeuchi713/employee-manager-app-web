@@ -11,6 +11,7 @@ import { NgForm } from '@angular/forms';
 })
 export class AppComponent implements OnInit{
   public employees: Employee[];
+  public editEmployee: Employee;
 
   constructor(private employeeService: EmployeeService) {}
 
@@ -30,7 +31,23 @@ export class AppComponent implements OnInit{
     );
   }
 
-  public onOpenModal(empyolee: Employee, mode: string): void {
+  public searchEmployees(key: string): void {
+    const result: Employee[] = [];
+    for (const employee of this.employees) {
+      if (employee.name.toLowerCase().indexOf(key.toLowerCase()) !== -1
+        || employee.email.toLowerCase().indexOf(key.toLowerCase()) !== -1
+        || employee.phone.toLowerCase().indexOf(key.toLowerCase()) !== -1
+        || employee.jobTitle.toLowerCase().indexOf(key.toLowerCase()) !== -1) {
+        result.push(employee);
+      }
+    }
+    this.employees = result;
+    if (result.length === 0 || !key) {
+      this.getEmployees();
+    }
+  }
+
+  public onOpenModal(employee: Employee, mode: string): void {
     const container = document.getElementById('main-container'); // idを振ったdiv要素を取得
     const button = document.createElement('button'); // ボタンを作る
     button.type = 'button';
@@ -42,10 +59,12 @@ export class AppComponent implements OnInit{
     }
 
     if (mode === 'edit'){
+      this.editEmployee = employee;
       button.setAttribute('data-target', '#updateEmployeeModal');
     }
 
     if (mode === 'delete'){
+      this.editEmployee = employee;
       button.setAttribute('data-target', '#deleteEmployeeModal');
     }
 
@@ -68,6 +87,38 @@ export class AppComponent implements OnInit{
     this.employeeService.addEmplyee(addForm.value).subscribe(
       (response: Employee) => {
         console.log(response);
+        this.getEmployees();
+        // formのデータが残るので消す
+        addForm.reset();
+      },
+      (error: HttpErrorResponse) => {
+        alert(error.message);
+        addForm.reset();
+      }
+    );
+  }
+
+  public onEditEmployee(employee: Employee): void {
+    document.getElementById('edit-employee-form').click();
+
+    // tslint:disable-next-line: deprecation
+    this.employeeService.updateEmplyee(employee).subscribe(
+      (response: Employee) => {
+        console.log(response);
+        this.getEmployees();
+      },
+      (error: HttpErrorResponse) => {
+        alert(error.message);
+      }
+    );
+  }
+
+  public onDeleteEmployee(employeeId: number): void {
+    document.getElementById('delete-employee-form').click();
+
+    // tslint:disable-next-line: deprecation
+    this.employeeService.deleteEmplyee(employeeId).subscribe(
+      (response: void) => {
         this.getEmployees();
       },
       (error: HttpErrorResponse) => {

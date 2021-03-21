@@ -10,8 +10,9 @@
           </li>
       </ul>
       <form class="form-inline mt-2 mt-md-0">
-          <input class="form-control mr-sm-2" type="text" placeholder="Search" aria-label="Search">
-          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+        <!-- html側だけで値を参照 -->
+          <input class="form-control mr-sm-2" type="text" #key="ngModel" ngModel name="key" placeholder="Search" aria-label="Search">
+          <button (click)="searchEmployees(key.value)" class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
       </form>
   </div>
 </div>
@@ -34,7 +35,7 @@
               </div>
             </div>
               <ul class="list-group list-group-flush">
-                <li class="list-group-item"><i class="fa fa-envelope float-right"></i>Email : <a href="#">{{employee.email}}</a></li>
+                <li class="list-group-item"><i class="fa fa-envelope float-right"></i><a href="#">{{employee.email}}</a></li>
                 <li class="list-group-item"><i class="fa fa-phone float-right"></i>Phone : {{employee.phone}}</li>
               </ul>
             <div class="card-body">
@@ -102,36 +103,39 @@
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="updateEmployeeModalLabel">Edit Employee</h5>
+            <h5 class="modal-title" id="updateEmployeeModalLabel">Edit Employee {{editEmployee?.name}}</h5>
             <button type="button" class="close" data-dismiss="modal" aria-labelledby="Close">
             <span aria-hidden="true">&times;</span> <!--&timesは　×　らしい-->
             </button>
           </div>
           <div class="modal-body text-left">
-            <form>
+            <form #editForm="ngForm">
               <div class="form-group">
                 <label for="name">Name</label>
-                <input type="text" name="name" class="form-control" id="name" placeholder="Name" required>
+                <!-- これは衝撃だね。こんな書き方ができるとは。。。 -->
+                <input type="text" ngModel="{{editEmployee?.name}}" name="name" class="form-control" id="name" placeholder="Name" required>
               </div>
+              <input type="hidden" ngModel="{{editEmployee?.id}}" name="id" class="form-control" id="id" placeholder="Email">
+              <input type="hidden" ngModel="{{editEmployee?.employeeCode}}" name="employeeCode" class="form-control" id="employeeCode" placeholder="Email">
               <div class="form-group">
                 <label for="email">Email Address</label>
-                <input type="text" name="email" class="form-control" id="email" placeholder="Email" required>
+                <input type="text" ngModel="{{editEmployee?.email}}" name="email" class="form-control" id="email" placeholder="Email" required>
               </div>
               <div class="form-group">
                 <label for="jobTitle">Job Title</label>
-                <input type="text" name="jobTitle" class="form-control" id="jobTitle" placeholder="jobTitle" required>
+                <input type="text" ngModel="{{editEmployee?.jobTitle}}" name="jobTitle" class="form-control" id="jobTitle" placeholder="jobTitle" required>
               </div>
               <div class="form-group">
                 <label for="phone">Phone</label>
-                <input type="text" name="phone" class="form-control" id="phone" placeholder="phone" required>
+                <input type="text" ngModel="{{editEmployee?.phone}}" name="phone" class="form-control" id="phone" placeholder="phone" required>
               </div>
               <div class="form-group">
                 <label for="imageUrl">ImageUrl</label>
-                <input type="text" name="imageUrl" class="form-control" id="imageUrl" placeholder="imageUrl" required>
+                <input type="text" ngModel="{{editEmployee?.imageUrl}}" name="imageUrl" class="form-control" id="imageUrl" placeholder="imageUrl" required>
               </div>
               <div class="modal-footer"></div>
-              <button type="button" class="btn btn-secondary pl-3 pr-3 m-3" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-danger pl-3 pr-3 m-3">Yes</button>
+              <button type="button" id="edit-employee-form" class="btn btn-secondary pl-3 pr-3 m-3" data-dismiss="modal">Close</button>
+              <button (click)="onEditEmployee(editForm.value)" [disabled]="editForm.invalid" type="submit" class="btn btn-danger pl-3 pr-3 m-3">Yes</button>
             </form>
           </div>
         </div>
@@ -149,14 +153,21 @@
             </button>
           </div>
           <div class="modal-body">
-            <p>Are you sure you want to delete emoloyee?</p>
+            <p>Are you sure you want to delete {{editEmployee?.name}}?</p>
             <div class="modal-footer"></div>
-            <button type="button" class="btn btn-secondary m-3 pl-3 pr-3">No</button>
-            <button class="btn btn-danger m-3 pl-3 pr-3" data-dismiss="modal">Yes</button>
+            <button type="button" id="delete-employee-form" class="btn btn-secondary m-3 pl-3 pr-3" data-dismiss="modal">No</button>
+            <button (click)="onDeleteEmployee(editEmployee?.id)" class="btn btn-danger m-3 pl-3 pr-3">Yes</button>
           </div>
         </div>
       </div>
     </div>
   </div>
 </main>
+
+<div *ngIf="employees?.length == 0" class="col-lg-12 col-md-12 col-xl-12">
+  <div class="alert alert-info" role="alert">
+    <h4 class="alert-heading">NO EMPLOYEES!!</h4>
+    <p>No Employee were found.</p>
+  </div>
+</div>
 

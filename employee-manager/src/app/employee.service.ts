@@ -29,7 +29,7 @@ export class EmployeeService {
   }
 
   public deleteEmplyee(employeeId: number): Observable<void>{
-    return this.http.delete<void>(`${this.apiServerUrl}/employee/add${employeeId}`);
+    return this.http.delete<void>(`${this.apiServerUrl}/employee/delete/${employeeId}`);
   }
 
 }
